@@ -3,6 +3,7 @@ package daysteps
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -25,18 +26,20 @@ func parsePackage(data string) (int, time.Duration, error) {
 	}
 
 	steps, err := strconv.Atoi(separatedData[0])
-	if err != nil {
-		return 0, 0, err
-	} 
-
-	if steps < 1 {
-		return 0, 0, errors.New("zero number of steps")
+	if err != nil || steps <= 0 {
+    if err != nil {
+        return 0, 0, err
+    }
+    return 0, 0, errors.New("steps must be positive")
 	}
 
 	duration, err := time.ParseDuration(separatedData[1])
-	if err != nil {
-		return 0, 0, err
-	} 
+	if err != nil || duration <= 0 {
+    if err != nil {
+        return 0, 0, err
+    }
+    return 0, 0, errors.New("duration must be positive")
+	}
 
 	return steps, duration, nil
 }
@@ -45,7 +48,7 @@ func DayActionInfo(data string, weight, height float64) string {
 	steps, duration, err := parsePackage(data)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return ""
 	} 
 
@@ -60,6 +63,6 @@ func DayActionInfo(data string, weight, height float64) string {
 		return ""
 	} 
 
-	return fmt.Sprintf("Количество шагов: %d.\nДистанция составила %.2f км.\nВы сожгли %.2f ккал.",
+	return fmt.Sprintf("Количество шагов: %d.\nДистанция составила %.2f км.\nВы сожгли %.2f ккал.\n",
 	steps, distance, caloriesBurned)
 }

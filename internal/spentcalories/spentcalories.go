@@ -26,14 +26,21 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	}
 
 	steps, err := strconv.Atoi(separatedData[0])
-	if err != nil {
-		return 0, "", 0, err
-	} 
+	if err != nil || steps <= 0 {
+    if err != nil {
+        return 0, "", 0, err
+    }
+    return 0, "", 0, errors.New("steps must be positive")
+	}
+
 
 	duration, err := time.ParseDuration(separatedData[2])
-	if err != nil {
-		return 0, "", 0, err
-	} 
+	if err != nil || duration <= 0 {
+    if err != nil {
+        return 0, "", 0, err
+    }
+    return 0, "", 0, errors.New("duration must be positive")
+	}
 
 	return steps, separatedData[1], duration, nil
 }
@@ -83,11 +90,11 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 			}
 
 	default: 
-			return "", fmt.Errorf("неизвестный тип тренировки: %s", activity)
+			return "", errors.New("неизвестный тип тренировки")
 	}	
 
 
-	result := fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f",
+	result := fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f\n",
         activity, 
         duration.Hours(), // Convert duration to hours
         dist, 
