@@ -26,20 +26,19 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	}
 
 	steps, err := strconv.Atoi(separatedData[0])
-	if err != nil || steps <= 0 {
-    if err != nil {
-        return 0, "", 0, err
-    }
-    return 0, "", 0, errors.New("steps must be positive")
+	if err != nil {
+		return 0, "", 0, err
+	}
+	if steps <= 0 {
+		return 0, "", 0, errors.New("steps must be positive")
 	}
 
-
 	duration, err := time.ParseDuration(separatedData[2])
-	if err != nil || duration <= 0 {
-    if err != nil {
-        return 0, "", 0, err
-    }
-    return 0, "", 0, errors.New("duration must be positive")
+	if err != nil {
+		return 0, "", 0, err
+	}
+	if duration <= 0 {
+		return 0, "", 0, errors.New("duration must be positive")
 	}
 
 	return steps, separatedData[1], duration, nil
@@ -58,9 +57,9 @@ func meanSpeed(steps int, height float64, duration time.Duration) float64 {
 	distance := distance(steps, height)
 
 	hours := duration.Hours()
-    
+
 	averageSpeed := distance / hours
-	
+
 	return averageSpeed
 }
 
@@ -71,63 +70,82 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 	}
 
 	var dist, avgSpeed, calories float64
-	
+
 	switch activity {
 	case "Ходьба":
-			dist = distance(steps, height)
-			avgSpeed = meanSpeed(steps, height, duration)
-			calories, err = WalkingSpentCalories(steps, weight, height, duration)
-			if err != nil {
-					return "", fmt.Errorf("walking calories calculation failed: %w", err)
-			}
-			
+		dist = distance(steps, height)
+		avgSpeed = meanSpeed(steps, height, duration)
+		calories, err = WalkingSpentCalories(steps, weight, height, duration)
+		if err != nil {
+			return "", fmt.Errorf("walking calories calculation failed: %w", err)
+		}
+
 	case "Бег":
-			dist = distance(steps, height)
-			avgSpeed = meanSpeed(steps, height, duration)
-			calories, err = RunningSpentCalories(steps, weight, height, duration)
-			if err != nil {
-					return "", fmt.Errorf("running calories calculation failed: %w", err)
-			}
+		dist = distance(steps, height)
+		avgSpeed = meanSpeed(steps, height, duration)
+		calories, err = RunningSpentCalories(steps, weight, height, duration)
+		if err != nil {
+			return "", fmt.Errorf("running calories calculation failed: %w", err)
+		}
 
-	default: 
-			return "", errors.New("неизвестный тип тренировки")
-	}	
-
+	default:
+		return "", errors.New("неизвестный тип тренировки")
+	}
 
 	result := fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f\n",
-        activity, 
-        duration.Hours(), // Convert duration to hours
-        dist, 
-        avgSpeed, 
-        calories)
-    
-    return result, nil
+		activity,
+		duration.Hours(), // Convert duration to hours
+		dist,
+		avgSpeed,
+		calories)
+
+	return result, nil
 }
 
 func RunningSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
-	if steps <= 0 || weight <= 0 || height <= 0 || duration <= time.Duration(0) {
-		return 0, errors.New("data of running  cannot include zero")
+	if steps <= 0 {
+		return 0, fmt.Errorf("invalid steps value for running: %d (must be positive)", steps)
+	}
+
+	if weight <= 0 {
+		return 0, fmt.Errorf("invalid weight value for running: %.2f (must be positive)", weight)
+	}
+
+	if height <= 0 {
+		return 0, fmt.Errorf("invalid height value for running: %.2f (must be positive)", height)
+	}
+
+	if duration <= time.Duration(0) {
+		return 0, fmt.Errorf("invalid duration value for running: %v (must be positive)", duration)
 	}
 
 	meanSpeed := meanSpeed(steps, height, duration)
-
 	durationInMinutes := duration.Minutes()
-		
-	calories := (weight * meanSpeed * durationInMinutes) / minInH 
+	calories := (weight * meanSpeed * durationInMinutes) / minInH
 
 	return calories, nil
 }
 
 func WalkingSpentCalories(steps int, weight, height float64, duration time.Duration) (float64, error) {
-	if steps <= 0 || weight <= 0 || height <= 0 || duration <= time.Duration(0) {
-		return 0, errors.New("data of walking cannot include zero")
+	if steps <= 0 {
+		return 0, fmt.Errorf("invalid steps value: %d (must be positive)", steps)
+	}
+
+	if weight <= 0 {
+		return 0, fmt.Errorf("invalid weight value: %.2f (must be positive)", weight)
+	}
+
+	if height <= 0 {
+		return 0, fmt.Errorf("invalid height value: %.2f (must be positive)", height)
+	}
+
+	if duration <= time.Duration(0) {
+		return 0, fmt.Errorf("invalid duration value: %v (must be positive)", duration)
 	}
 
 	meanSpeed := meanSpeed(steps, height, duration)
-	
 	durationInMinutes := duration.Minutes()
-
-	calories := (weight * meanSpeed * durationInMinutes) / minInH 
+	calories := (weight * meanSpeed * durationInMinutes) / minInH
 
 	return calories * walkingCaloriesCoefficient, nil
-}	
+}

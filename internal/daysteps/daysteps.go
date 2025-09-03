@@ -26,19 +26,19 @@ func parsePackage(data string) (int, time.Duration, error) {
 	}
 
 	steps, err := strconv.Atoi(separatedData[0])
-	if err != nil || steps <= 0 {
-    if err != nil {
-        return 0, 0, err
-    }
-    return 0, 0, errors.New("steps must be positive")
+	if err != nil {
+		return 0, 0, err
+	}
+	if steps <= 0 {
+		return 0, 0, errors.New("steps must be positive")
 	}
 
 	duration, err := time.ParseDuration(separatedData[1])
-	if err != nil || duration <= 0 {
-    if err != nil {
-        return 0, 0, err
-    }
-    return 0, 0, errors.New("duration must be positive")
+	if err != nil {
+		return 0, 0, err
+	}
+	if duration <= 0 {
+		return 0, 0, errors.New("duration must be positive")
 	}
 
 	return steps, duration, nil
@@ -50,7 +50,7 @@ func DayActionInfo(data string, weight, height float64) string {
 	if err != nil {
 		log.Println(err)
 		return ""
-	} 
+	}
 
 	if steps < 1 {
 		return ""
@@ -61,8 +61,8 @@ func DayActionInfo(data string, weight, height float64) string {
 	caloriesBurned, err := spentcalories.WalkingSpentCalories(steps, weight, height, duration)
 	if err != nil {
 		return ""
-	} 
+	}
 
 	return fmt.Sprintf("Количество шагов: %d.\nДистанция составила %.2f км.\nВы сожгли %.2f ккал.\n",
-	steps, distance, caloriesBurned)
+		steps, distance, caloriesBurned)
 }
